@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MITM Sentinel | Attack Prevention & Detection System</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <header class="navbar">
+            <div class="logo-group">
+                <span class="shield-icon">🛡️</span>
+                <div>
+                    <h1>MITM SENTINEL</h1>
+                    <span class="subtitle">Autonomous Man-in-the-Middle Detection & Active Defense</span>
+                </div>
+            </div>
+            <div class="header-controls">
+                <div class="status-badge" id="ws-status"><span class="dot"></span> CONNECTING</div>
+                <div class="defense-toggle-wrapper">
+                    <span class="toggle-label">Auto-Defense:</span>
+                    <button id="toggle-defense-btn" class="toggle-btn active">ACTIVE</button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Metric Stat Cards -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <span class="stat-label">Packets Analyzed</span>
+                <span class="stat-value" id="val-packets">0</span>
+                <span class="stat-detail">ARP / DNS / TLS</span>
+            </div>
+            <div class="stat-card alert-stat">
+                <span class="stat-label">Attacks Detected</span>
+                <span class="stat-value" id="val-attacks">0</span>
+                <span class="stat-detail">Real-time heuristics</span>
+            </div>
+            <div class="stat-card defense-stat">
+                <span class="stat-label">Defenses Triggered</span>
+                <span class="stat-value" id="val-defenses">0</span>
+                <span class="stat-detail">ARP Pin & Isolation</span>
+            </div>
+            <div class="stat-card quarantine-stat">
+                <span class="stat-label">Quarantined Threats</span>
+                <span class="stat-value" id="val-quarantined">0</span>
+                <span class="stat-detail">Firewall Blocked</span>
+            </div>
+        </div>
+
+        <!-- System Baseline Info -->
+        <div class="baseline-bar">
+            <div class="baseline-item"><strong>Interface:</strong> <span id="base-iface">--</span></div>
+            <div class="baseline-item"><strong>Local IP:</strong> <span id="base-local-ip">--</span></div>
+            <div class="baseline-item"><strong>Gateway IP:</strong> <span id="base-gw-ip">--</span></div>
+            <div class="baseline-item"><strong>Baseline MAC:</strong> <span id="base-gw-mac" class="mac-pill">--</span></div>
+        </div>
+
+        <!-- Attack Simulation Bar -->
+        <div class="simulator-panel">
+            <div class="panel-header">
+                <h3>⚡ Test & Verification Lab (Attack Simulator)</h3>
+                <span class="hint">Safely inject test attack vectors to verify instant detection and automatic defense</span>
+            </div>
+            <div class="sim-btn-group">
+                <button class="sim-btn danger" onclick="triggerSim('arp_gateway')">⚠️ ARP Gateway Spoof</button>
+                <button class="sim-btn danger" onclick="triggerSim('arp_flood')">⚡ ARP Reply Storm</button>
+                <button class="sim-btn warning" onclick="triggerSim('dns_poison')">🌐 DNS Poisoning</button>
+                <button class="sim-btn warning" onclick="triggerSim('ssl_strip')">🔓 SSL Stripping (HTTP Downgrade)</button>
+                <button class="sim-btn caution" onclick="triggerSim('proxy_cert')">🔏 MITM Proxy CA Intercept</button>
+                <button class="sim-btn all-in" onclick="triggerSim('full_suite')">🚀 Run Full Test Suite</button>
+            </div>
+        </div>
+
+        <!-- Main Layout: Alerts & Live Feed -->
+        <div class="main-content-grid">
+            <!-- Left: Threat Alerts & Active Quarantines -->
+            <div class="panel threats-panel">
+                <div class="panel-header">
+                    <h2>🚨 Active Threat & Defense Timeline</h2>
+                    <span id="alerts-count" class="badge">0 Events</span>
+                </div>
+                <div class="alerts-stream" id="alerts-container">
+                    <div class="empty-state">No attacks detected yet. Network is secure.</div>
+                </div>
+            </div>
+
+            <!-- Right: Packet Inspector & Quarantined Hosts -->
+            <div class="panel inspector-panel">
+                <div class="panel-header">
+                    <h2>📦 Live Packet Stream & Quarantine</h2>
+                    <span class="badge info">Real-time</span>
+                </div>
+                <div class="quarantine-box">
+                    <h4>⛔ Quarantined Attackers:</h4>
+                    <ul id="quarantine-list" class="quarantine-list">
+                        <li class="empty-li">No hosts currently quarantined.</li>
+                    </ul>
+                </div>
+                <div class="packet-table-wrapper">
+                    <table class="packet-table">
+                        <thead>
+                            <tr>
+                                <th>Type</th>
+                                <th>Source</th>
+                                <th>Destination</th>
+                                <th>Summary</th>
+                            </tr>
+                        </thead>
+                        <tbody id="packet-tbody">
+                            <tr><td colspan="4" class="text-center">Listening for network events...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="/static/app.js"></script>
+</body>
+</html>

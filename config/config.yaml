@@ -1,0 +1,72 @@
+# MITM Sentinel Configuration
+system:
+  name: "MITM-Sentinel"
+  interface: "en0"                  # Network interface to monitor (auto-detected if blank)
+  mode: "active"                    # "active" (detect & defend) or "passive" (detect only)
+  log_level: "INFO"
+  event_log_path: "logs/mitm_events.json"
+
+detection:
+  arp_spoofing:
+    enabled: true
+    rate_limit_pps: 5              # Max ARP replies per second before flagging flood
+    unsolicited_reply_alert: true  # Alert when ARP reply has no matching request
+    gateway_mac_flip_alert: true   # Critical alert if default gateway MAC flips
+    table_integrity_check_interval: 2.0 # Seconds between ARP table baseline checks
+
+  dns_spoofing:
+    enabled: true
+    doh_verification: true         # Verify suspicious responses against DoH (Cloudflare / Google)
+    doh_resolvers:
+      - "https://cloudflare-dns.com/dns-query"
+      - "https://dns.google/resolve"
+    unsolicited_response_alert: true
+    ttl_anomaly_threshold: 10      # Flag sudden abnormally low/different TTLs
+
+  ssl_tampering:
+    enabled: true
+    check_self_signed: true
+    check_known_mitm_issuers: true # Known proxy CAs (e.g. mitmproxy, PortSwigger, Fiddler)
+    known_mitm_ca_signatures:
+      - "mitmproxy"
+      - "PortSwigger"
+      - "Charles Proxy"
+      - "Fiddler"
+      - "Burp Suite"
+    detect_http_downgrade: true    # Flag HTTP traffic when HTTPS is expected for sensitive hosts
+
+  rogue_gateway:
+    enabled: true
+    detect_icmp_redirect: true
+    detect_rogue_dhcp: true
+
+defense:
+  auto_remediate: true             # Automatically trigger defensive countermeasures
+  arp_pinning:
+    enabled: true                  # Pin gateway MAC address statically
+    revert_interval_seconds: 1.0   # Frequency to re-assert legitimate ARP mapping
+    counter_arp_announcements: 3   # Gratuitous ARPs to broadcast restoring legitimate cache
+
+  attacker_isolation:
+    enabled: true                  # Block malicious MAC / IP
+    firewall_type: "auto"          # "auto" (detects pf on macOS, iptables on Linux) or "dry-run"
+    isolation_duration_seconds: 300 # 5 minutes quarantine
+
+  dns_fallback:
+    enabled: true                  # Force DNS resolution to DoH or pinned safe DNS
+
+  connection_kill:
+    enabled: true                  # Inject TCP RST packets to tear down poisoned sessions
+
+alerting:
+  desktop_notifications: true
+  console_alerts: true
+  json_logging: true
+  webhook:
+    enabled: false
+    url: ""                        # e.g., Slack or Discord webhook URL
+
+web_dashboard:
+  enabled: true
+  host: "127.0.0.1"
+  port: 8080
